@@ -1,0 +1,10 @@
+{
+  "id": "t99_storm",
+  "class": "medium",
+  "maxHealth": 1800,
+  "maxSpeed": 16.0,
+  "reverseSpeed": 6.5,
+  "hullTurnRate": 0.65,
+  "armor": {"front": 180, "side": 95, "rear": 55, "top": 35},
+  "weaponIds": ["cannon_125mm", "mg_coaxial"]
+}

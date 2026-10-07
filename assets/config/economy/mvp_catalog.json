@@ -1,0 +1,9 @@
+{
+  "currency": "parts",
+  "products": [
+    {"id": "field_repair_kit", "price": 150, "maxOwned": 10},
+    {"id": "ap_crate", "price": 120, "maxOwned": 10},
+    {"id": "he_crate", "price": 100, "maxOwned": 10},
+    {"id": "smoke_grenade", "price": 90, "maxOwned": 10}
+  ]
+}

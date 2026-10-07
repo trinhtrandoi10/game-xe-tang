@@ -1,0 +1,11 @@
+{
+  "id": "mvp_nam1",
+  "titleKey": "appTitle",
+  "objectives": [
+    {"type": "reach", "target": "binh_minh"},
+    {"type": "destroy", "targetGroup": "ares_scouts", "count": 2},
+    {"type": "capture", "target": "radar_nam1"},
+    {"type": "defend", "target": "radar_nam1", "duration": 45}
+  ],
+  "reward": {"parts": 420}
+}
