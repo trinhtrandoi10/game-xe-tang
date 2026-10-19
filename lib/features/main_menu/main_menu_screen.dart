@@ -40,12 +40,16 @@ class MainMenuScreen extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final compact = constraints.maxWidth < 800;
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: compact ? 22 : 54,
-                      vertical: compact ? 18 : 34),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: compact ? 22 : 54,
+                          vertical: compact ? 18 : 34),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
@@ -71,7 +75,6 @@ class MainMenuScreen extends StatelessWidget {
                               tooltip: strings.text('settings')),
                         ],
                       ),
-                      const Spacer(),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 620),
                         child: Column(
@@ -143,7 +146,6 @@ class MainMenuScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Spacer(),
                       Row(
                         children: <Widget>[
                           Container(
@@ -162,7 +164,9 @@ class MainMenuScreen extends StatelessWidget {
                                   letterSpacing: 1.4)),
                         ],
                       ),
-                    ],
+                      ],
+                    ),
+                  ),
                   ),
                 );
               },

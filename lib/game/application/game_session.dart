@@ -49,6 +49,7 @@ class GameSession {
   late MissionRuntime mission;
   GamePhase phase = GamePhase.active;
   PlayerCommand _command = const PlayerCommand();
+  double? _moveHeading;
   Timer? _timer;
   String? _lockedTargetId;
   String? _eventMessage;
@@ -90,21 +91,26 @@ class GameSession {
   }
 
   void setMovement({required double throttle, required double steering}) {
+    _moveHeading = null;
     _command = _command.copyWith(
       throttle: throttle.clamp(-1, 1).toDouble(),
       steering: steering.clamp(-1, 1).toDouble(),
     );
   }
 
+  void setDirectionalMovement({required double x, required double z}) {
+    final strength = math.sqrt(x * x + z * z).clamp(0.0, 1.0);
+    _moveHeading = strength > 0 ? math.atan2(x, z) : null;
+    _command = _command.copyWith(throttle: strength, steering: 0);
+  }
+
   void setTurretInput(double value) {
     _command = _command.copyWith(turret: value.clamp(-1, 1).toDouble());
   }
 
-  void aimBy(double radians) {
+  void aimAt(double heading) {
     if (phase != GamePhase.active) return;
-    player.turretHeading = normalizeAngle(
-      player.turretHeading + radians.clamp(-0.3, 0.3).toDouble(),
-    );
+    player.turretHeading = normalizeAngle(heading);
     _notify();
   }
 
@@ -263,6 +269,8 @@ class GameSession {
   }
 
   void _buildWorld({required bool fromProfile}) {
+    _command = const PlayerCommand();
+    _moveHeading = null;
     mission = MissionRuntime();
     if (fromProfile) {
       mission.restoreFromProfile(
@@ -383,6 +391,7 @@ class GameSession {
   void _updatePlayer(double dt) {
     final throttle = _command.throttle;
     final steering = _command.steering;
+    final moveHeading = _moveHeading;
     final trackFactor = player.leftTrackDisabled || player.rightTrackDisabled
         ? 0.35
         : 1.0;
@@ -391,17 +400,29 @@ class GameSession {
         (throttle >= 0
             ? player.config.maxSpeed * throttle
             : player.config.reverseSpeed * throttle) *
+        (moveHeading == null ? 1 : 2.64) *
         trackFactor *
         engineFactor;
     player.speed = moveTowards(
       player.speed,
       targetSpeed,
-      player.config.acceleration * dt,
+      player.config.acceleration *
+          (moveHeading != null || throttle == 0 ? 5 : 1) *
+          dt,
     );
-    final turnFactor = (throttle.abs() + 0.15).clamp(0.15, 1.0);
-    player.heading = normalizeAngle(
-      player.heading + steering * player.config.hullTurnRate * turnFactor * dt,
-    );
+    if (moveHeading != null) {
+      final angle = normalizeAngle(moveHeading - player.heading);
+      final maxTurn = player.config.hullTurnRate * 2.5 * dt;
+      player.heading = normalizeAngle(
+        player.heading + angle.clamp(-maxTurn, maxTurn),
+      );
+    } else {
+      final turnFactor = (throttle.abs() + 0.15).clamp(0.15, 1.0);
+      player.heading = normalizeAngle(
+        player.heading +
+            steering * player.config.hullTurnRate * turnFactor * dt,
+      );
+    }
     player.turretHeading = normalizeAngle(
       player.turretHeading +
           _command.turret * player.config.turretTurnRate * dt,

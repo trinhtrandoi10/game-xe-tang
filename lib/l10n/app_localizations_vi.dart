@@ -218,7 +218,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get touchHint =>
-      'JOYSTICK TRÁI: DI CHUYỂN  •  VÙNG PHẢI: XOAY THÁP PHÁO';
+      'JOYSTICK TRÁI: DI CHUYỂN  •  KÉO DẤU NGẮM: XOAY PHÁO';
 
   @override
   String get tutorialMove => 'Di chuyển đến điểm đánh dấu màu cyan.';

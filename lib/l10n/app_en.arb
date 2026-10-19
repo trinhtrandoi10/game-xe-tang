@@ -68,7 +68,7 @@
   "missionReward": "+420 Parts",
   "victoryMessage": "The radar uplink belongs to the resistance. Mai is waiting at the steelworks.",
   "defeatMessage": "ARES has sealed the sector. Restart the checkpoint and try a different approach.",
-  "touchHint": "LEFT JOYSTICK: MOVE  •  RIGHT ZONE: AIM TURRET",
+  "touchHint": "LEFT JOYSTICK: MOVE  •  DRAG RETICLE: AIM TURRET",
   "tutorialMove": "Move to the cyan objective marker.",
   "tutorialAim": "Drag the right zone to aim, then fire.",
   "tutorialCapture": "Stay inside the radar ring to begin capture.",

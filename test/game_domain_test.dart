@@ -122,6 +122,30 @@ void main() {
     session.dispose();
   });
 
+  test('directional joystick turns toward a heading and stops turning', () {
+    final session = GameSession(GameProfile.newGame());
+    session.player.heading = 0;
+    final start = session.player.position;
+
+    session.setDirectionalMovement(x: 1, z: 0);
+    for (var frame = 0; frame < 120; frame++) {
+      session.tick(1 / 60);
+    }
+    expect(session.player.position.x > start.x, true);
+    expect(
+      (session.player.speed - session.player.config.maxSpeed * 2.64).abs() <
+          0.001,
+      true,
+    );
+    expect(session.player.heading, closeTo(1.5707963267948966, 0.001));
+
+    for (var frame = 0; frame < 120; frame++) {
+      session.tick(1 / 60);
+    }
+    expect(session.player.heading, closeTo(1.5707963267948966, 0.001));
+    session.dispose();
+  });
+
   test('new mission starts facing its first objective', () {
     final profile = GameProfile.newGame();
     final session = GameSession(profile);

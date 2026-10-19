@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Serena local overrides (keep the shared project configuration versioned)
+.serena/project.local.yml

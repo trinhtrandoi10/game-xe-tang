@@ -86,7 +86,7 @@ class AppStrings {
         'Tín hiệu radar đã thuộc về kháng chiến. Mai đang chờ anh ở nhà máy thép.',
     'defeatMessage':
         'ARES đã khóa khu vực. Khởi động lại checkpoint và thử một hướng tiếp cận khác.',
-    'touchHint': 'JOYSTICK TRÁI: DI CHUYỂN  •  VÙNG PHẢI: XOAY THÁP PHÁO',
+    'touchHint': 'JOYSTICK TRÁI: DI CHUYỂN  •  KÉO DẤU NGẮM: XOAY PHÁO',
     'tutorialMove': 'Di chuyển đến điểm đánh dấu màu cyan.',
     'tutorialAim': 'Kéo vùng phải để xoay tháp pháo, sau đó khai hỏa.',
     'tutorialCapture': 'Đứng trong vòng radar để bắt đầu chiếm đóng.',
@@ -185,7 +185,7 @@ class AppStrings {
         'The radar uplink belongs to the resistance. Mai is waiting at the steelworks.',
     'defeatMessage':
         'ARES has sealed the sector. Restart the checkpoint and try a different approach.',
-    'touchHint': 'LEFT JOYSTICK: MOVE  •  RIGHT ZONE: AIM TURRET',
+    'touchHint': 'LEFT JOYSTICK: MOVE  •  DRAG RETICLE: AIM TURRET',
     'tutorialMove': 'Move to the cyan objective marker.',
     'tutorialAim': 'Drag the right zone to aim, then fire.',
     'tutorialCapture': 'Stay inside the radar ring to begin capture.',

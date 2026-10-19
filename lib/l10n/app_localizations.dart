@@ -509,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @touchHint.
   ///
   /// In vi, this message translates to:
-  /// **'JOYSTICK TRÁI: DI CHUYỂN  •  VÙNG PHẢI: XOAY THÁP PHÁO'**
+  /// **'JOYSTICK TRÁI: DI CHUYỂN  •  KÉO DẤU NGẮM: XOAY PHÁO'**
   String get touchHint;
 
   /// No description provided for @tutorialMove.

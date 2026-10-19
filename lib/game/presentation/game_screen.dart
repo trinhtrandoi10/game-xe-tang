@@ -33,10 +33,12 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late GameSnapshot _snapshot;
   Offset _joystick = Offset.zero;
-  Offset _joystickDrag = Offset.zero;
+  Offset _joystickOrigin = Offset.zero;
   int _controlSide = 0;
 
-  static const double _joystickInputRadius = 66;
+  static const double _joystickTouchRadius = 62;
+  static const double _joystickInputRadius = 102;
+  static const double _joystickBottom = 26;
   static const double _joystickDeadZone = 0.08;
 
   @override
@@ -83,13 +85,18 @@ class _GameScreenState extends State<GameScreen> {
               ((normalizedMagnitude - _joystickDeadZone) /
                   (1 - _joystickDeadZone));
     setState(() => _joystick = limited);
-    widget.session.setMovement(throttle: -limited.dy, steering: limited.dx);
+    widget.session.setDirectionalMovement(x: limited.dx, z: limited.dy);
   }
 
   void _endJoystick() {
-    _joystickDrag = Offset.zero;
     setState(() => _joystick = Offset.zero);
-    widget.session.setMovement(throttle: 0, steering: 0);
+    widget.session.setDirectionalMovement(x: 0, z: 0);
+  }
+
+  void _aimAt(Offset position, Offset tankCenter) {
+    final direction = position - tankCenter;
+    if (direction.distanceSquared < 64) return;
+    widget.session.aimAt(math.atan2(direction.dx, direction.dy));
   }
 
   @override
@@ -104,25 +111,41 @@ class _GameScreenState extends State<GameScreen> {
               children: <Widget>[
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onPanStart: (details) {
-                    _controlSide =
-                        details.localPosition.dx < constraints.maxWidth * 0.46
-                        ? 1
-                        : 2;
-                    if (_controlSide == 1) {
-                      _joystickDrag = Offset.zero;
-                      _updateJoystick(_joystickDrag);
+                  onPanDown: (details) {
+                    final joystickCenter = Offset(
+                      16 + 85,
+                      constraints.maxHeight - _joystickBottom - 85,
+                    );
+                    if ((details.localPosition - joystickCenter).distance <=
+                        _joystickTouchRadius) {
+                      _controlSide = 1;
+                      _joystickOrigin = joystickCenter;
+                      _updateJoystick(details.localPosition - _joystickOrigin);
+                    } else {
+                      final tankCenter = BattlefieldPainter.playerCenter(
+                        constraints.biggest,
+                      );
+                      final aimDirection = GameVector.fromHeading(
+                        _snapshot.turretHeading,
+                      );
+                      final reticle =
+                          tankCenter +
+                          Offset(aimDirection.x, aimDirection.z) *
+                              BattlefieldPainter.aimRadius;
+                      _controlSide =
+                          (details.localPosition - reticle).distance <= 30
+                          ? 2
+                          : 0;
                     }
                   },
                   onPanUpdate: (details) {
                     if (_controlSide == 1) {
-                      // Accumulating deltas avoids depending on the gesture's
-                      // absolute coordinate space after device rotation or
-                      // SafeArea insets have been applied.
-                      _joystickDrag += details.delta;
-                      _updateJoystick(_joystickDrag);
+                      _updateJoystick(details.localPosition - _joystickOrigin);
                     } else if (_controlSide == 2) {
-                      widget.session.aimBy(details.delta.dx * 0.018);
+                      _aimAt(
+                        details.localPosition,
+                        BattlefieldPainter.playerCenter(constraints.biggest),
+                      );
                     }
                   },
                   onPanEnd: (_) {
@@ -161,7 +184,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 Positioned(
                   left: 16,
-                  bottom: 10,
+                  bottom: _joystickBottom,
                   width: 170,
                   height: 170,
                   child: IgnorePointer(
@@ -884,7 +907,8 @@ class JoystickPainter extends CustomPainter {
         ..style = PaintingStyle.fill,
     );
     final knobCenter =
-        center + Offset(value.dx * radius * 0.75, value.dy * radius * 0.75);
+        center +
+        Offset(value.dx * (radius + 6) * 1.2, value.dy * (radius + 6) * 1.2);
     canvas.drawCircle(
       knobCenter,
       26,
@@ -921,6 +945,11 @@ class JoystickPainter extends CustomPainter {
 class BattlefieldPainter extends CustomPainter {
   BattlefieldPainter(this.snapshot);
 
+  static const double aimRadius = 90;
+
+  static Offset playerCenter(Size size) =>
+      Offset(size.width * 0.5, size.height * 0.54);
+
   final GameSnapshot snapshot;
 
   late double scale;
@@ -937,7 +966,7 @@ class BattlefieldPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    center = Offset(size.width * 0.5, size.height * 0.54);
+    center = playerCenter(size);
     scale = (size.shortestSide / 475).clamp(0.55, 1.05).toDouble();
     canvas.drawRect(
       rect,
@@ -1248,7 +1277,7 @@ class BattlefieldPainter extends CustomPainter {
   ) {
     canvas.save();
     canvas.translate(position.dx, position.dy);
-    canvas.rotate(heading);
+    canvas.rotate(math.pi - heading);
     final s = scale * 20 * sizeFactor;
     canvas.drawOval(
       Rect.fromCenter(
@@ -1288,7 +1317,7 @@ class BattlefieldPainter extends CustomPainter {
         ..strokeWidth = player ? 1.8 : 1.2,
     );
     canvas.save();
-    canvas.rotate(turretHeading - heading);
+    canvas.rotate(heading - turretHeading);
     final turret = Path()
       ..moveTo(-s * 0.7, s * 0.28)
       ..lineTo(-s * 0.55, -s * 0.52)
@@ -1307,7 +1336,7 @@ class BattlefieldPainter extends CustomPainter {
         ..strokeWidth = 1,
     );
     canvas.drawRect(
-      Rect.fromLTWH(s * 0.42, -s * 0.12, s * 1.7, s * 0.16),
+      Rect.fromLTWH(-s * 0.08, -s * 2.12, s * 0.16, s * 1.72),
       Paint()..color = color,
     );
     canvas.restore();
@@ -1367,8 +1396,8 @@ class BattlefieldPainter extends CustomPainter {
     final point =
         center +
         Offset(
-          GameVector.fromHeading(snapshot.turretHeading).x * 90,
-          GameVector.fromHeading(snapshot.turretHeading).z * 90,
+          GameVector.fromHeading(snapshot.turretHeading).x * aimRadius,
+          GameVector.fromHeading(snapshot.turretHeading).z * aimRadius,
         );
     final paint = Paint()
       ..color = IronGorgeColors.text.withAlpha(175)

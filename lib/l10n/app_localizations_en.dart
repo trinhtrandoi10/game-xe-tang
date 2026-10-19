@@ -217,7 +217,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'ARES has sealed the sector. Restart the checkpoint and try a different approach.';
 
   @override
-  String get touchHint => 'LEFT JOYSTICK: MOVE  •  RIGHT ZONE: AIM TURRET';
+  String get touchHint => 'LEFT JOYSTICK: MOVE  •  DRAG RETICLE: AIM TURRET';
 
   @override
   String get tutorialMove => 'Move to the cyan objective marker.';
